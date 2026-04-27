@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Create Account — My Cloud App{% endblock %}
+
+{% block content %}
+<style>
+  .auth-wrap { min-height: calc(100vh - 65px); display: grid; grid-template-columns: 1fr 1fr; }
+  @media(max-width:768px){ .auth-wrap { grid-template-columns: 1fr; } .auth-visual-reg { display: none !important; } }
+  .auth-panel { display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; background: white; }
+  .auth-form-box { width: 100%; max-width: 400px; }
+  .auth-label { display: block; font-family:'Syne',sans-serif; font-size:0.7rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#888899; margin-bottom:0.4rem; }
+  .auth-input { width:100%; background:#f7f7fb; border:1.5px solid #e2e2ea; border-radius:10px; padding:0.75rem 1rem; font-family:'DM Sans',sans-serif; font-size:0.95rem; color:var(--ink); transition:all 0.2s; outline:none; }
+  .auth-input:focus { border-color:var(--azure); background:white; box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+  .auth-submit { width:100%; background:var(--azure); color:white; border:none; border-radius:10px; padding:0.8rem; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; transition:all 0.2s; }
+  .auth-submit:hover { background:var(--azure2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(37,99,235,0.3); }
+  .divider { display:flex; align-items:center; gap:1rem; color:#bbb; font-size:0.8rem; margin:1.2rem 0; }
+  .divider::before,.divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .auth-visual-reg {
+    background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 100%);
+    position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dots-bg {
+    position:absolute; inset:0;
+    background-image: radial-gradient(circle, rgba(37,99,235,0.25) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+  }
+  .perk-list { list-style:none; text-align:left; margin-top:2rem; }
+  .perk-list li {
+    display:flex; align-items:center; gap:0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    margin-bottom:0.6rem;
+    color: rgba(255,255,255,0.85);
+    font-size:0.875rem;
+  }
+  .perk-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-panel fade-up">
+    <div class="auth-form-box">
+      <p style="font-size:0.8rem;font-weight:600;color:var(--azure);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;">Free forever</p>
+      <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:0.3rem;">Create account</h1>
+      <p style="color:#888899;font-size:0.9rem;margin-bottom:2rem;">Start storing files in the cloud today.</p>
+
+      <form method="post" id="reg-form">
+        <div style="margin-bottom:1.1rem;">
+          <label class="auth-label">Full name</label>
+          <input type="text" name="name" class="auth-input" placeholder="Your name" required>
+        </div>
+        <div style="margin-bottom:1.1rem;">
+          <label class="auth-label">Email address</label>
+          <input type="email" name="email" class="auth-input" placeholder="you@example.com" required>
+        </div>
+        <div style="margin-bottom:1.5rem;">
+          <label class="auth-label">Password</label>
+          <input type="password" name="password" class="auth-input" placeholder="Create a strong password" required minlength="6">
+        </div>
+        <button type="submit" class="auth-submit" id="reg-btn">
+          Create Account <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <p style="text-align:center;font-size:0.875rem;color:#888899;">
+        Already have an account?
+        <a href="/login" style="color:var(--azure);font-weight:600;text-decoration:none;">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-visual-reg">
+    <div class="dots-bg"></div>
+    <div style="position:relative;padding:3rem;max-width:400px;">
+      <h2 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;color:white;letter-spacing:-0.03em;margin-bottom:0.5rem;">
+        Everything you need.<br>Nothing you don't.
+      </h2>
+      <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;margin-bottom:0.5rem;">Your free plan includes:</p>
+      <ul class="perk-list">
+        <li>
+          <div class="perk-icon" style="background:rgba(37,99,235,0.2);">
+            <i class="bi bi-cloud-arrow-up" style="color:#60a5fa;"></i>
+          </div>
+          <div><strong>10 GB cloud storage</strong> on Backblaze B2</div>
+        </li>
+        <li>
+          <div class="perk-icon" style="background:rgba(16,185,129,0.2);">
+            <i class="bi bi-shield-check" style="color:#34d399;"></i>
+          </div>
+          <div><strong>Secure OTP login</strong> via your email</div>
+        </li>
+        <li>
+          <div class="perk-icon" style="background:rgba(245,158,11,0.2);">
+            <i class="bi bi-file-earmark-arrow-down" style="color:#fbbf24;"></i>
+          </div>
+          <div><strong>Any file type</strong> — video, audio, docs, archives</div>
+        </li>
+        <li>
+          <div class="perk-icon" style="background:rgba(244,63,94,0.2);">
+            <i class="bi bi-speedometer2" style="color:#fb7185;"></i>
+          </div>
+          <div><strong>Fast uploads & downloads</strong> with presigned URLs</div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('reg-form').addEventListener('submit', function() {
+  const btn = document.getElementById('reg-btn');
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+  btn.disabled = true;
+});
+</script>
+{% endblock %}

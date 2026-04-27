@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block title %}Settings — My Cloud App{% endblock %}
+
+{% block content %}
+<style>
+  .settings-wrap { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+  .page-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; }
+  .back-btn { width:40px;height:40px;border-radius:10px;border:1.5px solid var(--border);background:white;display:flex;align-items:center;justify-content:center;color:var(--ink2);text-decoration:none;transition:all 0.15s;flex-shrink:0; }
+  .back-btn:hover { background:var(--sky);border-color:#bfdbfe;color:var(--azure); }
+
+  .section-card { background:white;border:1px solid var(--border);border-radius:16px;padding:1.8rem;margin-bottom:1.5rem; }
+  .section-title { font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.6rem; }
+  .section-icon { width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0; }
+
+  .field-label { font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888899;display:block;margin-bottom:0.4rem; }
+  .field-input { width:100%;background:#f7f7fb;border:1.5px solid #e2e2ea;border-radius:10px;padding:0.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.9rem;color:var(--ink);outline:none;transition:all 0.2s; }
+  .field-input:focus { border-color:var(--azure);background:white;box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+  .field-input:disabled { opacity:0.55;cursor:not-allowed; }
+
+  .save-btn { background:var(--azure);color:white;border:none;border-radius:10px;padding:0.65rem 1.5rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s; }
+  .save-btn:hover { background:var(--azure2);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,0.3); }
+
+  /* Storage ring */
+  .storage-ring-wrap { display:flex;align-items:center;gap:2rem;flex-wrap:wrap; }
+  .ring-svg { width:110px;height:110px;flex-shrink:0; }
+  .ring-bg { fill:none;stroke:#f0f0f5;stroke-width:10; }
+  .ring-fg { fill:none;stroke:var(--azure);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+  .ring-text-big { font-family:'Syne',sans-serif;font-size:18px;font-weight:800;fill:var(--ink);text-anchor:middle; }
+  .ring-text-small { font-size:10px;fill:#888899;text-anchor:middle; }
+
+  /* File list */
+  .file-item { display:flex;align-items:center;gap:1rem;padding:0.75rem 0;border-bottom:1px solid #f4f4f8; }
+  .file-item:last-child { border-bottom:none; }
+  .file-icon-sm { width:38px;height:38px;border-radius:8px;background:var(--mist);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;overflow:hidden; }
+  .file-icon-sm img { width:100%;height:100%;object-fit:cover; }
+
+  /* Danger zone */
+  .danger-card { background:#fff5f5;border:1.5px solid #fecdd3;border-radius:16px;padding:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem; }
+  .logout-btn { background:var(--rose);color:white;border:none;border-radius:10px;padding:0.6rem 1.4rem;font-family:'Syne',sans-serif;font-weight:700;font-size:0.875rem;text-decoration:none;transition:all 0.2s;display:inline-block; }
+  .logout-btn:hover { background:#e11d48;color:white;transform:translateY(-1px); }
+</style>
+
+<div class="settings-wrap">
+
+  <div class="page-header fade-up">
+    <a href="/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i></a>
+    <div>
+      <h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin:0;">Settings</h1>
+      <p style="color:#888899;font-size:0.85rem;margin:0;">Manage your profile and storage</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-7 fade-up" style="animation-delay:0.05s;">
+
+      <!-- Profile form -->
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-icon" style="background:#eff6ff;color:var(--azure);"><i class="bi bi-person-fill"></i></div>
+          Edit Profile
+        </div>
+        <form method="post" id="settings-form">
+          <div style="margin-bottom:1rem;">
+            <label class="field-label">Display name</label>
+            <input type="text" name="name" class="field-input" value="{{ name }}" required>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label class="field-label">Email address</label>
+            <input type="email" class="field-input" value="{{ email }}" disabled>
+            <p style="font-size:0.75rem;color:#888899;margin-top:0.3rem;margin-bottom:0;">Email address cannot be changed.</p>
+          </div>
+          <div style="margin-bottom:1.5rem;">
+            <label class="field-label">New password</label>
+            <input type="password" name="password" class="field-input" placeholder="Leave blank to keep current">
+          </div>
+          <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+      </div>
+
+      <!-- Files list -->
+      <div class="section-card">
+        <div class="section-title">
+          <div class="section-icon" style="background:#f0fdf4;color:#16a34a;"><i class="bi bi-folder2-open"></i></div>
+          Manage Files
+          <span style="margin-left:auto;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--mist);border-radius:99px;padding:0.15rem 0.6rem;color:#666;">
+            {{ files|length }} file{% if files|length != 1 %}s{% endif %}
+          </span>
+        </div>
+
+        {% if files %}
+          {% for f in files %}
+          <div class="file-item">
+            <div class="file-icon-sm">
+              {% if f.is_image %}
+                <img src="/preview/{{ f.id }}" alt="">
+              {% else %}
+                <i class="bi bi-file-earmark" style="color:#aaa;"></i>
+              {% endif %}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ f.name }}">{{ f.name }}</div>
+              <div style="font-size:0.75rem;color:#888899;">{{ f.size_human }}</div>
+            </div>
+            <a href="/download/{{ f.id }}" class="action-btn download" title="Download"
+               style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:white;color:#888899;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all 0.15s;font-size:0.85rem;">
+              <i class="bi bi-download"></i>
+            </a>
+            <button class="action-btn del btn-del-settings" data-id="{{ f.id }}" title="Delete"
+                    style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:white;color:#888899;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;font-size:0.85rem;">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:2rem;color:#bbb;">
+            <i class="bi bi-cloud-slash" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.5rem;"></i>
+            <p style="font-size:0.875rem;margin:0;">No files uploaded yet.</p>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="col-md-5 fade-up" style="animation-delay:0.1s;">
+
+      <!-- Storage overview -->
+      <div class="section-card" style="text-align:center;">
+        <div class="section-title" style="justify-content:center;">
+          <div class="section-icon" style="background:#eff6ff;color:var(--azure);"><i class="bi bi-cloud-check"></i></div>
+          Storage Overview
+        </div>
+
+        <div class="storage-ring-wrap" style="justify-content:center;">
+          <div>
+            {% set circ = 282.6 %}
+            {% set offset = circ * (1 - usage_percent / 100) %}
+            <svg class="ring-svg" viewBox="0 0 100 100">
+              <circle class="ring-bg" cx="50" cy="50" r="45"/>
+              <circle class="ring-fg" id="ring-circle" cx="50" cy="50" r="45"
+                stroke-dasharray="{{ circ }}"
+                stroke-dashoffset="{{ circ }}"
+                data-offset="{{ offset }}"
+                {% if usage_percent >= 90 %}stroke="#f43f5e"{% elif usage_percent >= 70 %}stroke="#f59e0b"{% endif %}
+              />
+              <text class="ring-text-big" x="50" y="46">{{ usage_percent }}%</text>
+              <text class="ring-text-small" x="50" y="60">used</text>
+            </svg>
+          </div>
+          <div style="text-align:left;">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;">{{ total_bytes_human }}</div>
+            <div style="font-size:0.8rem;color:#888899;margin-bottom:0.75rem;">of 10.0 GB free tier</div>
+            {% if usage_percent >= 90 %}
+              <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.8rem;color:#be123c;">
+                <i class="bi bi-exclamation-triangle me-1"></i>Storage almost full!
+              </div>
+            {% elif usage_percent >= 70 %}
+              <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.8rem;color:#92400e;">
+                <i class="bi bi-info-circle me-1"></i>Over 70% used
+              </div>
+            {% else %}
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.8rem;color:#166534;">
+                <i class="bi bi-check-circle me-1"></i>Plenty of space left
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <hr style="margin:1.5rem 0;border-color:#f4f4f8;">
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;">
+          <span style="color:#888899;">Provider</span>
+          <span style="font-weight:600;">Backblaze B2</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-top:0.5rem;">
+          <span style="color:#888899;">Files stored</span>
+          <span style="font-weight:600;">{{ files|length }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-top:0.5rem;">
+          <span style="color:#888899;">Egress cost</span>
+          <span style="font-weight:600;color:var(--emerald);">$0.00</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-card fade-up" style="animation-delay:0.2s;">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:#be123c;font-size:0.95rem;margin-bottom:0.2rem;">Sign Out</div>
+      <div style="font-size:0.85rem;color:#9f1239;">Securely end your current session.</div>
+    </div>
+    <a href="/logout" class="logout-btn">Sign Out</a>
+  </div>
+
+</div>
+
+<script>
+// Animate ring on load
+document.addEventListener('DOMContentLoaded', () => {
+  const circle = document.getElementById('ring-circle');
+  if (circle) {
+    setTimeout(() => {
+      circle.style.strokeDashoffset = circle.dataset.offset;
+    }, 300);
+  }
+});
+
+// Delete from settings page
+document.querySelectorAll('.btn-del-settings').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!confirm('Delete this file? This cannot be undone.')) return;
+    const id = btn.dataset.id;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    btn.disabled = true;
+    try {
+      const r = await fetch(`/delete/${id}`, { method: 'DELETE' });
+      if (r.ok) {
+        const row = btn.closest('.file-item');
+        row.style.opacity = '0';
+        row.style.transition = 'opacity 0.3s';
+        setTimeout(() => row.remove(), 300);
+        showToast('File deleted', 'success');
+      } else {
+        showToast('Delete failed', 'error');
+        btn.innerHTML = '<i class="bi bi-trash"></i>';
+        btn.disabled = false;
+      }
+    } catch(e) {
+      showToast('Error', 'error');
+      btn.innerHTML = '<i class="bi bi-trash"></i>';
+      btn.disabled = false;
+    }
+  });
+});
+</script>
+{% endblock %}

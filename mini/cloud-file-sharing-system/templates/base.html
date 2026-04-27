@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}My Cloud App{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --ink:     #0a0a0f;
+      --ink2:    #3a3a4a;
+      --mist:    #f4f4f8;
+      --border:  #e2e2ea;
+      --azure:   #2563eb;
+      --azure2:  #1d4ed8;
+      --sky:     #eff6ff;
+      --emerald: #10b981;
+      --amber:   #f59e0b;
+      --rose:    #f43f5e;
+      --card:    #ffffff;
+      --radius:  14px;
+      --shadow:  0 1px 3px rgba(10,10,15,0.07), 0 4px 16px rgba(10,10,15,0.05);
+      --shadow-hover: 0 4px 12px rgba(10,10,15,0.1), 0 16px 40px rgba(10,10,15,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f7f7fb;
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6, .font-display {
+      font-family: 'Syne', sans-serif;
+    }
+
+    /* ── Navbar ── */
+    .navbar {
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+
+    .navbar-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--ink) !important;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-dot {
+      width: 8px; height: 8px;
+      background: var(--azure);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .nav-pill {
+      background: var(--mist);
+      border-radius: 50px;
+      padding: 0.35rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink2);
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .nav-pill:hover { background: var(--sky); color: var(--azure); border-color: #bfdbfe; }
+
+    .avatar-circle {
+      width: 36px; height: 36px;
+      background: var(--azure);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .dropdown-menu {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.4rem;
+      box-shadow: var(--shadow-hover);
+      min-width: 200px;
+    }
+    .dropdown-item {
+      border-radius: 8px;
+      padding: 0.55rem 0.9rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--ink2);
+      transition: all 0.15s;
+    }
+    .dropdown-item:hover { background: var(--mist); color: var(--ink); }
+    .dropdown-item.text-danger:hover { background: #fff1f2; }
+
+    /* ── Cards ── */
+    .card-surface {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    /* ── Buttons ── */
+    .btn-azure {
+      background: var(--azure);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.6rem 1.4rem;
+      transition: all 0.2s;
+    }
+    .btn-azure:hover { background: var(--azure2); color: white; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--ink2);
+      font-weight: 500;
+      font-size: 0.875rem;
+      padding: 0.5rem 1.1rem;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--azure); color: var(--azure); background: var(--sky); }
+
+    /* ── Toast ── */
+    .toast-stack {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .my-toast {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1.2rem;
+      box-shadow: var(--shadow-hover);
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 280px;
+      animation: toastIn 0.3s ease;
+    }
+
+    .my-toast.success { border-left: 3px solid var(--emerald); }
+    .my-toast.error   { border-left: 3px solid var(--rose); }
+    .my-toast.info    { border-left: 3px solid var(--azure); }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Progress bar ── */
+    .storage-bar-track {
+      height: 6px;
+      background: var(--mist);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .storage-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--azure);
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    .storage-bar-fill.warning { background: var(--amber); }
+    .storage-bar-fill.danger  { background: var(--rose); }
+
+    /* ── Animations ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Misc ── */
+    a { color: var(--azure); }
+    .text-muted { color: #888899 !important; }
+    hr { border-color: var(--border); }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <span class="brand-dot"></span>My Cloud App
+    </a>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+      {% if current_user.is_authenticated %}
+        <a href="/dashboard" class="nav-pill d-none d-md-block">
+          <i class="bi bi-grid me-1"></i>Dashboard
+        </a>
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="dropdown">
+            <div class="avatar-circle">{{ current_user.name[0]|upper }}</div>
+            <span class="fw-500 d-none d-md-block" style="font-size:0.9rem; color:var(--ink);">{{ current_user.name }}</span>
+            <i class="bi bi-chevron-down" style="font-size:0.7rem; color:var(--ink2);"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end mt-2">
+            <li>
+              <a class="dropdown-item" href="/dashboard">
+                <i class="bi bi-grid me-2" style="color:var(--azure);"></i>Dashboard
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/settings">
+                <i class="bi bi-sliders me-2" style="color:var(--azure);"></i>Settings
+              </a>
+            </li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li>
+              <a class="dropdown-item text-danger" href="/logout">
+                <i class="bi bi-box-arrow-right me-2"></i>Sign Out
+              </a>
+            </li>
+          </ul>
+        </div>
+      {% else %}
+        <a href="/login" class="nav-pill">Sign In</a>
+        <a href="/register" class="btn-azure btn">Get Started</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<main>{% block content %}{% endblock %}</main>
+
+<div class="toast-stack" id="toast-stack"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function showToast(msg, type = 'info') {
+  const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
+  const colors = { success: '#10b981', error: '#f43f5e', info: '#2563eb' };
+  const el = document.createElement('div');
+  el.className = `my-toast ${type}`;
+  el.innerHTML = `<i class="bi ${icons[type]}" style="color:${colors[type]};font-size:1.1rem;"></i><span>${msg}</span>`;
+  document.getElementById('toast-stack').appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(20px)'; el.style.transition='all 0.3s'; setTimeout(()=>el.remove(),300); }, 4000);
+}
+</script>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <script>
+      document.addEventListener('DOMContentLoaded', () => showToast("{{ messages[0] }}", 'info'));
+    </script>
+  {% endif %}
+{% endwith %}
+
+{% block scripts %}{% endblock %}
+</body>
+</html>

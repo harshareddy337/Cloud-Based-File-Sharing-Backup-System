@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — My Cloud App{% endblock %}
+
+{% block content %}
+<style>
+  .dash-wrap { max-width: 1200px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* ── Header ── */
+  .dash-header { margin-bottom: 2rem; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .dash-title { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; letter-spacing:-0.03em; margin:0; }
+  .dash-sub { color:#888899; font-size:0.9rem; margin-top:0.2rem; }
+
+  /* ── Storage Card ── */
+  .storage-card {
+    background: var(--ink);
+    border-radius: 16px;
+    padding: 1.4rem 1.6rem;
+    color: white;
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    flex-wrap: wrap;
+    position: relative; overflow: hidden;
+  }
+  .storage-card::before {
+    content: '';
+    position: absolute; top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .storage-icon { width:48px; height:48px; border-radius:12px; background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+  .storage-info { flex: 1; min-width: 160px; }
+  .storage-label { font-size:0.75rem; color:rgba(255,255,255,0.5); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.3rem; }
+  .storage-numbers { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
+  .storage-bar-track { height:5px; background:rgba(255,255,255,0.15); border-radius:99px; overflow:hidden; }
+  .storage-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#3b82f6,#60a5fa); width:0%; transition:width 1s cubic-bezier(0.4,0,0.2,1); }
+  .storage-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 99px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+    flex-shrink: 0;
+  }
+  .b2-dot { width:7px;height:7px;border-radius:50%;background:#34d399;animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: white;
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--azure);
+    background: var(--sky);
+  }
+  .upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-icon { width:56px;height:56px; background:var(--sky);border-radius:14px; display:flex;align-items:center;justify-content:center; margin:0 auto 1rem; font-size:1.6rem;color:var(--azure); }
+  .upload-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:var(--ink); margin-bottom:0.3rem; }
+  .upload-sub { font-size:0.8rem; color:#888899; }
+  .upload-progress {
+    display:none; margin-top:1rem;
+    background:#f0f4ff; border-radius:10px; padding:0.75rem 1rem;
+  }
+  .upload-progress-bar { height:4px; background:#bfdbfe; border-radius:99px; margin-top:0.5rem; overflow:hidden; }
+  .upload-progress-fill { height:100%; background:var(--azure); border-radius:99px; width:0%; transition:width 0.3s; animation:uploading 1.5s infinite; }
+  @keyframes uploading { 0%{width:0%} 50%{width:70%} 100%{width:95%} }
+
+  /* ── Files table ── */
+  .files-card { background:white; border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .files-header { padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .files-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; color:#888899; }
+  .files-count { font-size:0.8rem; background:var(--mist); border-radius:99px; padding:0.2rem 0.7rem; color:#666; font-weight:600; }
+
+  .file-row { display:flex; align-items:center; padding:0.85rem 1.5rem; border-bottom:1px solid #f4f4f8; transition:background 0.15s; gap:1rem; }
+  .file-row:last-child { border-bottom:none; }
+  .file-row:hover { background:#fafafa; }
+
+  .file-thumb {
+    width:44px; height:44px; border-radius:10px; flex-shrink:0;
+    overflow:hidden; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; background:var(--mist); color:#aaa;
+  }
+  .file-thumb img { width:100%; height:100%; object-fit:cover; }
+
+  .file-name { font-weight:600; font-size:0.9rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
+  .file-meta { font-size:0.75rem; color:#888899; margin-top:0.1rem; }
+
+  .file-badge {
+    display:inline-block; font-size:0.68rem; font-weight:700;
+    padding:0.2rem 0.55rem; border-radius:6px;
+    background:var(--mist); color:#666;
+    text-transform:uppercase; letter-spacing:0.05em;
+    flex-shrink:0;
+  }
+  .file-size { font-size:0.8rem; color:#888899; font-weight:500; flex-shrink:0; min-width:60px; text-align:right; }
+
+  .backend-tag {
+    font-size:0.65rem; font-weight:700; padding:0.15rem 0.45rem; border-radius:5px;
+    text-transform:uppercase; letter-spacing:0.05em;
+  }
+  .backend-tag.b2 { background:#e0f2fe; color:#0284c7; }
+  .backend-tag.local { background:#f0fdf4; color:#16a34a; }
+
+  .action-btn {
+    width:32px; height:32px; border-radius:8px; border:1px solid var(--border);
+    background:white; color:#888899; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.15s; flex-shrink:0;
+    text-decoration:none; font-size:0.9rem;
+  }
+  .action-btn:hover.download { background:var(--sky); border-color:#bfdbfe; color:var(--azure); }
+  .action-btn:hover.del { background:#fff1f2; border-color:#fecdd3; color:var(--rose); }
+
+  .empty-state { text-align:center; padding:4rem 2rem; color:#bbb; }
+  .empty-icon { font-size:3rem; margin-bottom:1rem; opacity:0.3; }
+
+  /* ── Sidebar ── */
+  .sidebar-card { background:white; border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1rem; }
+  .sidebar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.08em; color:#888899; margin-bottom:1rem; }
+
+  .quick-stat { display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid #f4f4f8; }
+  .quick-stat:last-child { border-bottom:none; }
+  .quick-stat-label { font-size:0.85rem; color:#888899; }
+  .quick-stat-val { font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; color:var(--ink); }
+
+  .type-chip { display:inline-flex; align-items:center; gap:0.35rem; background:var(--mist); border-radius:8px; padding:0.35rem 0.7rem; font-size:0.78rem; font-weight:500; color:var(--ink2); margin:0.2rem; }
+</style>
+
+<div class="dash-wrap">
+
+  <!-- Header -->
+  <div class="dash-header fade-up">
+    <div>
+      <h1 class="dash-title">My Drive</h1>
+      <p class="dash-sub">Welcome back, <strong>{{ name }}</strong></p>
+    </div>
+    <div style="display:flex;gap:0.5rem;align-items:center;">
+      <div class="storage-badge">
+        <div class="b2-dot"></div>
+        Backblaze B2 Connected
+      </div>
+    </div>
+  </div>
+
+  <!-- Storage Bar -->
+  <div class="storage-card fade-up" style="animation-delay:0.05s;">
+    <div class="storage-icon"><i class="bi bi-hdd-stack"></i></div>
+    <div class="storage-info">
+      <div class="storage-label">Cloud Storage (Backblaze B2 — 10 GB Free)</div>
+      <div class="storage-numbers">
+        {{ total_usage }} used
+        <span style="color:rgba(255,255,255,0.35); font-weight:400; font-size:0.9rem;"> / 10.0 GB</span>
+      </div>
+      <div class="storage-bar-track">
+        <div class="storage-bar-fill
+          {% if usage_percent >= 90 %}danger{% elif usage_percent >= 70 %}warning{% endif %}"
+          id="storage-fill"
+          data-width="{{ usage_percent }}">
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right; flex-shrink:0;">
+      <div style="font-family:'Syne',sans-serif; font-size:2rem; font-weight:800;">{{ usage_percent }}<span style="font-size:1rem; opacity:0.5;">%</span></div>
+      <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">of free tier used</div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Main column -->
+    <div class="col-lg-8">
+
+      <!-- Upload zone -->
+      <form method="post" enctype="multipart/form-data" id="upload-form" class="fade-up" style="animation-delay:0.1s;">
+        <div class="upload-zone" id="drop-zone">
+          <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+          <div class="upload-title">Drop files here or click to upload</div>
+          <div class="upload-sub">Any file type · Stored securely in Backblaze B2</div>
+          <input type="file" name="file" id="file-input">
+        </div>
+        <div class="upload-progress" id="upload-progress">
+          <div style="font-size:0.85rem;font-weight:600;color:var(--azure);">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Uploading to Backblaze B2...
+          </div>
+          <div class="upload-progress-bar"><div class="upload-progress-fill"></div></div>
+        </div>
+      </form>
+
+      <!-- Files list -->
+      <div class="files-card fade-up" style="animation-delay:0.15s;">
+        <div class="files-header">
+          <span class="files-title">Your Files</span>
+          <span class="files-count">{{ files|length }} file{% if files|length != 1 %}s{% endif %}</span>
+        </div>
+
+        {% if files %}
+          {% for f in files %}
+          <div class="file-row">
+            <div class="file-thumb">
+              {% if f.is_image %}
+                <img src="/preview/{{ f.id }}" alt="{{ f.name }}" loading="lazy">
+              {% else %}
+                {% set ext = f.name.lower().rsplit('.',1)[-1] if '.' in f.name else '' %}
+                {% if ext in ['mp4','mkv','avi','mov','webm'] %}
+                  <i class="bi bi-play-circle" style="color:#7c3aed;"></i>
+                {% elif ext in ['mp3','wav','aac','flac','m4a','ogg'] %}
+                  <i class="bi bi-music-note-beamed" style="color:#db2777;"></i>
+                {% elif ext == 'pdf' %}
+                  <i class="bi bi-file-pdf" style="color:#dc2626;"></i>
+                {% elif ext in ['zip','rar','7z','tar','gz'] %}
+                  <i class="bi bi-file-zip" style="color:#d97706;"></i>
+                {% elif ext in ['doc','docx'] %}
+                  <i class="bi bi-file-word" style="color:#2563eb;"></i>
+                {% elif ext in ['xls','xlsx'] %}
+                  <i class="bi bi-file-excel" style="color:#16a34a;"></i>
+                {% elif ext in ['ppt','pptx'] %}
+                  <i class="bi bi-file-ppt" style="color:#ea580c;"></i>
+                {% else %}
+                  <i class="bi bi-file-earmark-text"></i>
+                {% endif %}
+              {% endif %}
+            </div>
+
+            <div style="flex:1; min-width:0;">
+              <div class="file-name" title="{{ f.name }}">{{ f.name }}</div>
+              <div class="file-meta">
+                {{ f.size_human }}
+                {% if f.duration %}
+                  · {{ '%d:%02d'|format((f.duration//60)|int, (f.duration%60)|int) }}
+                {% endif %}
+                &nbsp;
+                <span class="backend-tag {{ f.backend|default('local') }}">
+                  {{ f.backend|default('local') }}
+                </span>
+              </div>
+            </div>
+
+            <span class="file-badge">{{ f.mime_type.split('/')|last|upper|truncate(8,True,'') }}</span>
+
+            <a href="/download/{{ f.id }}" class="action-btn download" title="Download">
+              <i class="bi bi-download"></i>
+            </a>
+            <button class="action-btn del btn-del" data-id="{{ f.id }}" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-cloud-slash"></i></div>
+            <p style="font-weight:600;color:#999;margin-bottom:0.3rem;">No files yet</p>
+            <p style="font-size:0.85rem;">Upload your first file above — it'll go straight to Backblaze B2!</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+
+      <!-- Quick stats -->
+      <div class="sidebar-card fade-up" style="animation-delay:0.2s;">
+        <div class="sidebar-title">Storage Summary</div>
+        <div class="quick-stat">
+          <span class="quick-stat-label"><i class="bi bi-files me-2" style="color:var(--azure);"></i>Total files</span>
+          <span class="quick-stat-val">{{ files|length }}</span>
+        </div>
+        <div class="quick-stat">
+          <span class="quick-stat-label"><i class="bi bi-hdd me-2" style="color:var(--emerald);"></i>Space used</span>
+          <span class="quick-stat-val">{{ total_usage }}</span>
+        </div>
+        <div class="quick-stat">
+          <span class="quick-stat-label"><i class="bi bi-hdd-rack me-2" style="color:#888899;"></i>Free tier</span>
+          <span class="quick-stat-val">10.0 GB</span>
+        </div>
+        <div class="quick-stat">
+          <span class="quick-stat-label"><i class="bi bi-cloud-check me-2" style="color:#7c3aed;"></i>Provider</span>
+          <span class="quick-stat-val" style="font-size:0.8rem;">Backblaze B2</span>
+        </div>
+      </div>
+
+      <!-- File types breakdown -->
+      {% if files %}
+      <div class="sidebar-card fade-up" style="animation-delay:0.25s;">
+        <div class="sidebar-title">File Types</div>
+        <div>
+          {% set ns = namespace(video=0, audio=0, image=0, doc=0, other=0) %}
+          {% for f in files %}
+            {% if 'video' in f.mime_type %}{% set ns.video = ns.video + 1 %}
+            {% elif 'audio' in f.mime_type %}{% set ns.audio = ns.audio + 1 %}
+            {% elif 'image' in f.mime_type %}{% set ns.image = ns.image + 1 %}
+            {% elif 'pdf' in f.mime_type or 'document' in f.mime_type or 'text' in f.mime_type %}{% set ns.doc = ns.doc + 1 %}
+            {% else %}{% set ns.other = ns.other + 1 %}{% endif %}
+          {% endfor %}
+          {% if ns.video > 0 %}<span class="type-chip"><i class="bi bi-play-circle" style="color:#7c3aed;"></i>Video ({{ ns.video }})</span>{% endif %}
+          {% if ns.audio > 0 %}<span class="type-chip"><i class="bi bi-music-note" style="color:#db2777;"></i>Audio ({{ ns.audio }})</span>{% endif %}
+          {% if ns.image > 0 %}<span class="type-chip"><i class="bi bi-image" style="color:#0284c7;"></i>Image ({{ ns.image }})</span>{% endif %}
+          {% if ns.doc > 0 %}<span class="type-chip"><i class="bi bi-file-text" style="color:#16a34a;"></i>Docs ({{ ns.doc }})</span>{% endif %}
+          {% if ns.other > 0 %}<span class="type-chip"><i class="bi bi-file-earmark" style="color:#888;"></i>Other ({{ ns.other }})</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Profile card -->
+      <div class="sidebar-card fade-up" style="animation-delay:0.3s;">
+        <div class="sidebar-title">Account</div>
+        <div style="display:flex;align-items:center;gap:0.85rem;margin-bottom:1rem;">
+          <div style="width:44px;height:44px;background:var(--azure);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;flex-shrink:0;">
+            {{ name[0]|upper }}
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.9rem;">{{ name }}</div>
+            <div style="font-size:0.78rem;color:#888899;">Free plan · 10 GB</div>
+          </div>
+        </div>
+        <a href="/settings" class="btn-ghost btn w-100" style="font-size:0.85rem;">
+          <i class="bi bi-sliders me-2"></i>Settings & Profile
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Animate storage bar on load
+document.addEventListener('DOMContentLoaded', () => {
+  const fill = document.getElementById('storage-fill');
+  if (fill) setTimeout(() => fill.style.width = fill.dataset.width + '%', 200);
+});
+
+// Upload form — show progress overlay
+const form    = document.getElementById('upload-form');
+const fileIn  = document.getElementById('file-input');
+const dropZ   = document.getElementById('drop-zone');
+const progBox = document.getElementById('upload-progress');
+
+fileIn.addEventListener('change', () => {
+  if (fileIn.files.length) {
+    progBox.style.display = 'block';
+    form.submit();
+  }
+});
+
+// Drag and drop
+['dragenter','dragover','dragleave','drop'].forEach(e => {
+  dropZ.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
+});
+dropZ.addEventListener('dragenter', () => dropZ.classList.add('dragover'));
+dropZ.addEventListener('dragover',  () => dropZ.classList.add('dragover'));
+dropZ.addEventListener('dragleave', () => dropZ.classList.remove('dragover'));
+dropZ.addEventListener('drop', e => {
+  dropZ.classList.remove('dragover');
+  const dt = e.dataTransfer;
+  if (dt.files && dt.files.length) {
+    fileIn.files = dt.files;
+    progBox.style.display = 'block';
+    form.submit();
+  }
+});
+
+// Delete buttons
+document.querySelectorAll('.btn-del').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    if (!confirm('Delete this file from Backblaze B2? This cannot be undone.')) return;
+    const id = btn.dataset.id;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    btn.disabled = true;
+    try {
+      const r = await fetch(`/delete/${id}`, { method: 'DELETE' });
+      if (r.ok) {
+        const row = btn.closest('.file-row');
+        row.style.transition = 'all 0.3s';
+        row.style.opacity = '0';
+        row.style.maxHeight = row.offsetHeight + 'px';
+        setTimeout(() => { row.style.maxHeight = '0'; row.style.padding = '0'; }, 300);
+        setTimeout(() => { row.remove(); showToast('File deleted', 'success'); }, 600);
+      } else {
+        showToast('Delete failed', 'error');
+        btn.innerHTML = '<i class="bi bi-trash"></i>';
+        btn.disabled = false;
+      }
+    } catch(e) {
+      showToast('Connection error', 'error');
+      btn.innerHTML = '<i class="bi bi-trash"></i>';
+      btn.disabled = false;
+    }
+  });
+});
+</script>
+{% endblock %}

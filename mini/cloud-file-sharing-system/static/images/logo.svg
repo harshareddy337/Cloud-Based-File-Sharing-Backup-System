@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80" viewBox="0 0 240 80" role="img" aria-label="Cloud Share logo">
+  <defs>
+    <linearGradient id="lg" x1="0" x2="1">
+      <stop offset="0" stop-color="#6dd5fa"/>
+      <stop offset="1" stop-color="#3498db"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <rect width="240" height="80" rx="8" fill="transparent"/>
+    <g transform="translate(12,10)">
+      <!-- cloud mark -->
+      <g transform="translate(0,6)">
+        <ellipse cx="26" cy="18" rx="20" ry="12" fill="url(#lg)" opacity="0.95"/>
+        <ellipse cx="44" cy="14" rx="14" ry="10" fill="#fff" opacity="0.12"/>
+        <path d="M10 24c0-6 6-12 16-12 4 0 8 2 10 5 2-3 6-5 10-5 8 0 16 6 16 12v2H10v-2z" fill="#ffffff" opacity="0.9"/>
+      </g>
+      <!-- text -->
+      <g transform="translate(80,6)">
+        <text x="0" y="28" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#1f4f85">Cloud</text>
+        <text x="0" y="52" font-family="Segoe UI, Inter, Arial, sans-serif" font-size="14" fill="#3498db">Share</text>
+      </g>
+    </g>
+  </g>
+</svg>

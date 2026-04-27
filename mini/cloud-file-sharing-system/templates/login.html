@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — My Cloud App{% endblock %}
+
+{% block content %}
+<style>
+  .auth-wrap { min-height: calc(100vh - 65px); display: grid; grid-template-columns: 1fr 1fr; }
+  @media(max-width:768px){ .auth-wrap { grid-template-columns: 1fr; } .auth-visual { display: none !important; } }
+
+  .auth-panel {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem 2rem; background: white;
+  }
+
+  .auth-form-box { width: 100%; max-width: 400px; }
+
+  .auth-label {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #888899;
+    margin-bottom: 0.4rem;
+  }
+
+  .auth-input {
+    width: 100%;
+    background: #f7f7fb;
+    border: 1.5px solid #e2e2ea;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    color: var(--ink);
+    transition: all 0.2s;
+    outline: none;
+  }
+  .auth-input:focus { border-color: var(--azure); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+  .auth-submit {
+    width: 100%;
+    background: var(--azure);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.8rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+  }
+  .auth-submit:hover { background: var(--azure2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.3); }
+  .auth-submit:active { transform: translateY(0); }
+
+  .divider { display: flex; align-items: center; gap: 1rem; color: #bbb; font-size: 0.8rem; margin: 1.2rem 0; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .auth-visual {
+    background: var(--ink);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .visual-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(37,99,235,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37,99,235,0.15) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .visual-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(37,99,235,0.3) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .visual-content {
+    position: relative;
+    text-align: center;
+    color: white;
+    padding: 3rem;
+  }
+
+  .feature-chip {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 99px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8);
+    margin: 0.25rem;
+  }
+  .feature-chip i { color: #60a5fa; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .stat-box {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: left;
+  }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: white; }
+  .stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.15rem; }
+</style>
+
+<div class="auth-wrap">
+  <div class="auth-panel fade-up">
+    <div class="auth-form-box">
+      <p class="mb-1" style="font-size:0.8rem; font-weight:600; color:var(--azure); letter-spacing:0.1em; text-transform:uppercase;">Welcome back</p>
+      <h1 style="font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.03em; margin-bottom:0.3rem;">Sign in</h1>
+      <p style="color:#888899; font-size:0.9rem; margin-bottom:2rem;">Access your workspace and files.</p>
+
+      <form method="post" id="login-form">
+        <div style="margin-bottom:1.1rem;">
+          <label class="auth-label">Email address</label>
+          <input type="email" name="email" class="auth-input" placeholder="you@example.com" required>
+        </div>
+        <div style="margin-bottom:1.5rem;">
+          <label class="auth-label">Password</label>
+          <input type="password" name="password" class="auth-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="auth-submit" id="login-btn">
+          Continue <i class="bi bi-arrow-right ms-1"></i>
+        </button>
+      </form>
+
+      <div class="divider">or</div>
+
+      <p style="text-align:center; font-size:0.875rem; color:#888899;">
+        Don't have an account?
+        <a href="/register" style="color:var(--azure); font-weight:600; text-decoration:none;">Create one free</a>
+      </p>
+
+      <p style="text-align:center; font-size:0.75rem; color:#bbb; margin-top:2rem;">
+        After sign-in you'll receive a one-time code via email.
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-visual">
+    <div class="visual-grid"></div>
+    <div class="visual-glow"></div>
+    <div class="visual-content">
+      <div style="margin-bottom:1.5rem;">
+        <div class="feature-chip"><i class="bi bi-shield-check"></i> End-to-end secure</div>
+        <div class="feature-chip"><i class="bi bi-lightning-charge"></i> Lightning fast</div>
+        <div class="feature-chip"><i class="bi bi-cloud-check"></i> Always backed up</div>
+      </div>
+      <h2 style="font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; letter-spacing:-0.03em; line-height:1.2; margin-bottom:0.75rem;">
+        Your files.<br>Everywhere.
+      </h2>
+      <p style="color:rgba(255,255,255,0.55); font-size:0.9rem; max-width:320px; margin:0 auto;">
+        Upload once, access from any device. Powered by Backblaze B2 cloud storage.
+      </p>
+      <div class="stat-grid" style="max-width:320px; margin:1.5rem auto 0;">
+        <div class="stat-box">
+          <div class="stat-num">10<span style="font-size:1rem;">GB</span></div>
+          <div class="stat-lbl">Free cloud storage</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">1<span style="font-size:1rem;">GB</span></div>
+          <div class="stat-lbl">Max file size</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', function() {
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+  btn.disabled = true;
+});
+</script>
+{% endblock %}
